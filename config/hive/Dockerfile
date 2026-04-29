@@ -2,7 +2,7 @@ FROM apache/hive:4.1.0
 
 USER root
 
-RUN apt-get update && apt-get install -y findutils procps netcat-openbsd \
-    && rm -rf /var/lib/apt/lists/*
+RUN microdnf install -y findutils procps-ng nc \
+    && microdnf clean all
 
 USER hive
