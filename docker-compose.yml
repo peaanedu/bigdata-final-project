@@ -171,7 +171,10 @@ services:
       - bigdata_net
 
   hive-server:
-    image: apache/hive:4.1.0
+    build:
+      context: .
+      dockerfile: docker/hive/Dockerfile
+    image: bigdata-hive:4.1.0
     container_name: hive-server
     hostname: hive-server
     environment:
