@@ -178,6 +178,7 @@ services:
       - SERVICE_NAME=hiveserver2
       - HIVE_CUSTOM_CONF_DIR=/opt/hive/conf
       - SKIP_SCHEMA_INIT=true
+      - IS_RESUME=true
       - SERVICE_OPTS=-Dhive.metastore.uris=thrift://hive-metastore:9083
     ports:
       - "10000:10000"
