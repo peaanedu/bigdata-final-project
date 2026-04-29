@@ -179,17 +179,15 @@ services:
     hostname: hive-server
     environment:
       - SERVICE_NAME=hiveserver2
-      - HIVE_CUSTOM_CONF_DIR=/opt/hive/conf
-      - SKIP_SCHEMA_INIT=true
-      - IS_RESUME=true
       - SERVICE_OPTS=-Dhive.metastore.uris=thrift://hive-metastore:9083
+      - IS_RESUME=true
     ports:
       - "10000:10000"
       - "10002:10002"
     volumes:
-    - ./config/hive/hive-site.xml:/opt/hive/conf/hive-site.xml
-    - ./config/hadoop:/opt/hadoop/etc/hadoop
-    - ./config/hive/lib/postgresql-42.7.3.jar:/opt/hive/lib/postgresql-42.7.3.jar
+      - ./config/hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+      - ./config/hadoop:/opt/hadoop/etc/hadoop   # ✅ keep Hadoop config here
+      - ./config/hive/lib/postgresql-42.7.3.jar:/opt/hive/lib/postgresql-42.7.3.jar
     depends_on:
       - hive-metastore
     networks:
