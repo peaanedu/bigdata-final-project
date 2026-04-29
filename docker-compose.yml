@@ -1,0 +1,279 @@
+services:
+
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    container_name: namenode
+    hostname: namenode
+    environment:
+      - CLUSTER_NAME=bigdata-cluster
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - TZ=Asia/Phnom_Penh
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+      - ./config/hadoop:/etc/hadoop
+    networks:
+      - bigdata_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9870"]
+      interval: 20s
+      timeout: 10s
+      retries: 10
+
+  datanode1:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode1
+    hostname: datanode1
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - SERVICE_PRECONDITION=namenode:9870
+      - TZ=Asia/Phnom_Penh
+    volumes:
+      - datanode1_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    networks:
+      - bigdata_net
+
+  datanode2:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode2
+    hostname: datanode2
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - SERVICE_PRECONDITION=namenode:9870
+      - TZ=Asia/Phnom_Penh
+    volumes:
+      - datanode2_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    networks:
+      - bigdata_net
+
+  datanode3:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    container_name: datanode3
+    hostname: datanode3
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - HDFS_CONF_dfs_replication=2
+      - HDFS_CONF_dfs_permissions_enabled=false
+      - SERVICE_PRECONDITION=namenode:9870
+      - TZ=Asia/Phnom_Penh
+    volumes:
+      - datanode3_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+    networks:
+      - bigdata_net
+
+  resourcemanager:
+    image: bde2020/hadoop-resourcemanager:2.0.0-hadoop3.2.1-java8
+    container_name: resourcemanager
+    hostname: resourcemanager
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - SERVICE_PRECONDITION=namenode:9000
+      - TZ=Asia/Phnom_Penh
+    ports:
+      - "8088:8088"
+    depends_on:
+      - namenode
+    networks:
+      - bigdata_net
+
+  nodemanager1:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager1
+    hostname: nodemanager1
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - SERVICE_PRECONDITION=resourcemanager:8088
+      - TZ=Asia/Phnom_Penh
+    depends_on:
+      - resourcemanager
+    networks:
+      - bigdata_net
+
+  nodemanager2:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager2
+    hostname: nodemanager2
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - SERVICE_PRECONDITION=resourcemanager:8088
+      - TZ=Asia/Phnom_Penh
+    depends_on:
+      - resourcemanager
+    networks:
+      - bigdata_net
+
+  nodemanager3:
+    image: bde2020/hadoop-nodemanager:2.0.0-hadoop3.2.1-java8
+    container_name: nodemanager3
+    hostname: nodemanager3
+    environment:
+      - CORE_CONF_fs_defaultFS=hdfs://namenode:9000
+      - YARN_CONF_yarn_resourcemanager_hostname=resourcemanager
+      - SERVICE_PRECONDITION=resourcemanager:8088
+      - TZ=Asia/Phnom_Penh
+    depends_on:
+      - resourcemanager
+    networks:
+      - bigdata_net
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    hostname: postgres
+    environment:
+      - POSTGRES_DB=metastore
+      - POSTGRES_USER=hive
+      - POSTGRES_PASSWORD=hivepassword
+      - TZ=Asia/Phnom_Penh
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - bigdata_net
+
+  hive-metastore:
+    image: apache/hive:standalone-metastore-4.1.0
+    container_name: hive-metastore
+    hostname: hive-metastore
+    environment:
+      - SERVICE_NAME=metastore
+      - DB_DRIVER=postgres
+      - SERVICE_OPTS=-Djavax.jdo.option.ConnectionDriverName=org.postgresql.Driver -Djavax.jdo.option.ConnectionURL=jdbc:postgresql://postgres:5432/metastore -Djavax.jdo.option.ConnectionUserName=hive -Djavax.jdo.option.ConnectionPassword=hivepassword
+    ports:
+      - "9083:9083"
+    volumes:
+      - ./config/hive:/opt/hive/conf
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
+    depends_on:
+      - postgres
+      - namenode
+    networks:
+      - bigdata_net
+
+  hive-server:
+    image: apache/hive:4.1.0
+    container_name: hive-server
+    hostname: hive-server
+    environment:
+      - SERVICE_NAME=hiveserver2
+      - HIVE_CUSTOM_CONF_DIR=/opt/hive/conf
+      - SERVICE_OPTS=-Dhive.metastore.uris=thrift://hive-metastore:9083
+    ports:
+      - "10000:10000"
+      - "10002:10002"
+    volumes:
+      - ./config/hive:/opt/hive/conf
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
+    depends_on:
+      - hive-metastore
+    networks:
+      - bigdata_net
+
+  spark-master:
+    image: spark:3.5.6-python3
+    container_name: spark-master
+    hostname: spark-master
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
+    environment:
+      - SPARK_MASTER_HOST=spark-master
+      - SPARK_NO_DAEMONIZE=true
+    ports:
+      - "7077:7077"
+      - "8080:8080"
+    volumes:
+      - ./notebooks:/opt/workspace
+      - ./datasets:/opt/datasets
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
+    networks:
+      - bigdata_net
+
+  spark-worker1:
+    image: spark:3.5.6-python3
+    container_name: spark-worker1
+    hostname: spark-worker1
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_NO_DAEMONIZE=true
+    depends_on:
+      - spark-master
+    networks:
+      - bigdata_net
+
+  spark-worker2:
+    image: spark:3.5.6-python3
+    container_name: spark-worker2
+    hostname: spark-worker2
+    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    environment:
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2g
+      - SPARK_NO_DAEMONIZE=true
+    depends_on:
+      - spark-master
+    networks:
+      - bigdata_net
+
+  trino:
+    image: trinodb/trino:latest
+    container_name: trino
+    hostname: trino
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./config/trino:/etc/trino
+      - ./config/hadoop:/etc/hadoop
+    depends_on:
+      - hive-metastore
+    networks:
+      - bigdata_net
+
+  jupyter:
+    image: quay.io/jupyter/pyspark-notebook:python-3.11
+    container_name: jupyter
+    hostname: jupyter
+    environment:
+      - JUPYTER_TOKEN=bigdata
+      - SPARK_MASTER=spark://spark-master:7077
+    ports:
+      - "8888:8888"
+      - "4040:4040"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+      - ./datasets:/home/jovyan/datasets
+      - ./config/hadoop:/etc/hadoop
+    depends_on:
+      - spark-master
+      - namenode
+    networks:
+      - bigdata_net
+
+networks:
+  bigdata_net:
+    driver: bridge
+
+volumes:
+  namenode_data:
+  datanode1_data:
+  datanode2_data:
+  datanode3_data:
+  postgres_data:
