@@ -173,7 +173,7 @@ services:
   hive-server:
     build:
       context: .
-      dockerfile: confi/hive/Dockerfile
+      dockerfile: config/hive/Dockerfile
     image: bigdata-hive:4.1.0
     container_name: hive-server
     hostname: hive-server
