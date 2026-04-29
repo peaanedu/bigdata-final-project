@@ -187,9 +187,9 @@ services:
       - "10000:10000"
       - "10002:10002"
     volumes:
-      - ./config/hive:/opt/hive/conf
-      - ./config/hadoop:/opt/hadoop/etc/hadoop
-      - ./config/hive/lib/postgresql-42.7.3.jar:/opt/hive/lib/postgresql-42.7.3.jar
+    - ./config/hive/hive-site.xml:/opt/hive/conf/hive-site.xml
+    - ./config/hadoop:/opt/hadoop/etc/hadoop
+    - ./config/hive/lib/postgresql-42.7.3.jar:/opt/hive/lib/postgresql-42.7.3.jar
     depends_on:
       - hive-metastore
     networks:
