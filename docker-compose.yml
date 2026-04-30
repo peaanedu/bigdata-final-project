@@ -186,7 +186,7 @@ services:
       - "10002:10002"
     volumes:
       - ./config/hive/hive-site.xml:/opt/hive/conf/hive-site.xml
-      - ./config/hadoop:/opt/hadoop/etc/hadoop   # ✅ keep Hadoop config here
+      - ./config/hadoop:/opt/hadoop/etc/hadoop
       - ./config/hive/lib/postgresql-42.7.3.jar:/opt/hive/lib/postgresql-42.7.3.jar
     depends_on:
       - hive-metastore
@@ -240,7 +240,7 @@ services:
       - bigdata_net
 
   trino:
-    image: trinodb/trino:latest
+    image: trinodb/trino:446
     container_name: trino
     hostname: trino
     ports:
@@ -263,6 +263,8 @@ services:
     ports:
       - "8888:8888"
       - "4040:4040"
+      - "4041:4041"
+      - "4042:4042"
     volumes:
       - ./notebooks:/home/jovyan/work
       - ./datasets:/home/jovyan/datasets
@@ -272,10 +274,6 @@ services:
       - namenode
     networks:
       - bigdata_net
-
-networks:
-  bigdata_net:
-    driver: bridge
 
 volumes:
   namenode_data:
