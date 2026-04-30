@@ -254,7 +254,7 @@ services:
       - bigdata_net
 
   jupyter:
-    image: quay.io/jupyter/pyspark-notebook:python-3.11
+    image: jupyter/pyspark-notebook:spark-3.5.0
     container_name: jupyter
     hostname: jupyter
     environment:
@@ -274,7 +274,6 @@ services:
       - namenode
     networks:
       - bigdata_net
-
 volumes:
   namenode_data:
   datanode1_data:
