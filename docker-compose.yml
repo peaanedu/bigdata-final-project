@@ -215,24 +215,13 @@ services:
     image: spark:3.5.6-python3
     container_name: spark-worker1
     hostname: spark-worker1
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
+    command: >
+      /opt/spark/bin/spark-class 
+      org.apache.spark.deploy.worker.Worker 
+      --cores 2 
+      --memory 2g 
+      spark://spark-master:7077
     environment:
-      - SPARK_WORKER_CORES=2
-      - SPARK_WORKER_MEMORY=2g
-      - SPARK_NO_DAEMONIZE=true
-    depends_on:
-      - spark-master
-    networks:
-      - bigdata_net
-
-  spark-worker2:
-    image: spark:3.5.6-python3
-    container_name: spark-worker2
-    hostname: spark-worker2
-    command: /opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker spark://spark-master:7077
-    environment:
-      - SPARK_WORKER_CORES=2
-      - SPARK_WORKER_MEMORY=2g
       - SPARK_NO_DAEMONIZE=true
     depends_on:
       - spark-master
@@ -277,6 +266,7 @@ services:
 networks:
   bigdata_net:
     driver: bridge
+
 volumes:
   namenode_data:
   datanode1_data:
