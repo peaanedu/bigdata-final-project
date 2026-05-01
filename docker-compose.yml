@@ -274,6 +274,9 @@ services:
       - namenode
     networks:
       - bigdata_net
+networks:
+  bigdata_net:
+    driver: bridge
 volumes:
   namenode_data:
   datanode1_data:
