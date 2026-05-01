@@ -194,7 +194,7 @@ services:
       - bigdata_net
 
   spark-master:
-    image: spark:3.5.6-python3
+    image: spark:3.5.0-python3
     container_name: spark-master
     hostname: spark-master
     command: /opt/spark/bin/spark-class org.apache.spark.deploy.master.Master
@@ -212,7 +212,7 @@ services:
       - bigdata_net
 
   spark-worker1:
-    image: spark:3.5.6-python3
+    image: spark:3.5.0-python3
     container_name: spark-worker1
     hostname: spark-worker1
     command: >
@@ -229,7 +229,7 @@ services:
       - bigdata_net
 
   spark-worker2:
-    image: spark:3.5.6-python3
+    image: spark:3.5.0-python3
     container_name: spark-worker2
     hostname: spark-worker2
     command: >
